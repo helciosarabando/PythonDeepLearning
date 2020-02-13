@@ -38,6 +38,9 @@ print("Keras:{}".format(keras.__version__))
 
 from prettytable import PrettyTable
 
+import time
+
+from HFS_Utils import printtime
 
 #---------------------- Just for Warnings -----------------------
 import warnings
@@ -53,6 +56,9 @@ with warnings.catch_warnings():
 #----------------------------------------------------------------
 #-------------------------- Header ------------------------------
 #----------------------------------------------------------------
+# Captura do "timestamp" para cálculo do tempo de execução
+start = time.time()
+# Construção do cabeçalho impresso
 print ('\n')
 M0_val_acc = 0
 t_select = PrettyTable()
@@ -108,7 +114,30 @@ print ("\nInitiating the construction of the model\n")
 model = Sequential()
 
 # Constructing the model
-model.add(LSTM(128,input_shape= (52,1,),return_sequences= False))
+model.add(LSTM(units=128,
+               activation='tanh', 
+               recurrent_activation='sigmoid', 
+               use_bias=True, 
+               kernel_initializer='glorot_uniform',
+               recurrent_initializer='orthogonal', 
+               bias_initializer='zeros',
+               unit_forget_bias=True,
+               #kernel_regularizer=None, 
+               #recurrent_regularizer=None, 
+               #bias_regularizer=None, 
+               ##activity_regularizer=None, 
+               #kernel_constraint=None, 
+               #recurrent_constraint=None, 
+               #bias_constraint=None, 
+               #dropout=0.0, 
+               #recurrent_dropout=0.0, 
+               implementation=2, 
+               #return_sequences=False, 
+               return_state=False, 
+               #go_backwards=False, 
+               #stateful=False, 
+               #unroll=False,
+               input_shape=(52,1,)))
 model.add(Dropout(0.5))
 model.add(Dense(21, activation='softmax'))
 
@@ -146,10 +175,17 @@ score, acc = model.evaluate(x_test, y_test, verbose=1)
 print('\nTest accuracy:', str(round((acc*100),4)) + '%')
 print('\nTest loss:', round((score),4))
 
+# Cálculo do tempo de execução da rede neural
+finish = time.time()
+timeexec = finish - start
+
+
 #__________________________Result______________________________
 print ("\nShowing a table for this model result\n")
 table = PrettyTable()
-table.field_names = ['Model', 'Average FDR']
+table.field_names = ['Model', 'Average FDR', ]
 table.add_row(['LSTM - 0 "Toy Example"', round((M0_val_acc*100),4)])
 print(table)
+
+printtime(timeexec)
 
