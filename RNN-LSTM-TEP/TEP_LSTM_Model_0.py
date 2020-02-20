@@ -31,6 +31,7 @@ from keras.layers import (LSTM,
                           Dropout)
 from keras.models import Sequential
 from keras.utils import to_categorical
+# from keras.regularizers import l2
 # from keras.callbacks import (Callback, 
 #                               EarlyStopping)
 import keras
@@ -116,30 +117,38 @@ model = Sequential()
 # Constructing the model
 model.add(LSTM(units=128,
                activation='tanh', 
-               recurrent_activation='sigmoid', 
-               use_bias=True, 
-               kernel_initializer='glorot_uniform',
-               recurrent_initializer='orthogonal', 
-               bias_initializer='zeros',
-               unit_forget_bias=True,
-               #kernel_regularizer=None, 
-               #recurrent_regularizer=None, 
-               #bias_regularizer=None, 
-               ##activity_regularizer=None, 
-               #kernel_constraint=None, 
-               #recurrent_constraint=None, 
-               #bias_constraint=None, 
-               #dropout=0.0, 
-               #recurrent_dropout=0.0, 
-               implementation=2, 
-               #return_sequences=False, 
+               recurrent_activation='sigmoid',
+               #-----------------------------------------------
+               use_bias=True,
+               #-----------------------------------------------
+               kernel_initializer='glorot_normal',
+               recurrent_initializer='random_normal',
+               bias_initializer='random_normal',
+               unit_forget_bias=False,
+               #-----------------------------------------------
+               #kernel_regularizer=l2(0.02), 
+               #recurrent_regularizer=l2(0.02), 
+               #bias_regularizer=l2(0.02),
+               #activity_regularizer=None,
+               #-----------------------------------------------
+               kernel_constraint=None, 
+               recurrent_constraint=None, 
+               bias_constraint=None,
+               #-----------------------------------------------
+               #dropout=0.5, 
+               #recurrent_dropout=0.5,
+               #-----------------------------------------------
+               implementation=1, 
+               return_sequences=False, 
                return_state=False, 
-               #go_backwards=False, 
-               #stateful=False, 
-               #unroll=False,
+               go_backwards=False,
+               stateful=False, 
+               unroll=False,
+               #-----------------------------------------------
                input_shape=(52,1,)))
 model.add(Dropout(0.5))
-model.add(Dense(21, activation='softmax'))
+model.add(Dense(units=21,
+                activation='softmax'))
 
 # Compiling the model
 model.compile(loss='categorical_crossentropy', 
@@ -152,7 +161,7 @@ print(model.summary())
 model.fit(x_train, y_train, 
                   epochs=5,
                   verbose=1, 
-                  batch_size=256, 
+                  batch_size=16, 
                   validation_data = (x_cv,y_cv))
 
 # Printing the results
